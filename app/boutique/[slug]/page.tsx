@@ -2,6 +2,7 @@ import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import { fcfa } from "@/lib/format";
 import AddToCart from "./AddToCart";
+import ProductGallery from "@/components/ProductGallery";
 
 export const revalidate = 60;
 
@@ -22,24 +23,9 @@ export default async function ProductPage({
 
   return (
     <main className="pt-28 max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 pb-32">
-      <div className="space-y-4">
-        {(p.images ?? []).length > 0 ? (
-          p.images.map((src: string, i: number) => (
-            <img
-              key={i}
-              src={src}
-              alt={p.name}
-              className="w-full aspect-[3/4] object-cover bg-sand/30"
-            />
-          ))
-        ) : (
-          <img
-            src="/images/placeholder.jpg"
-            alt={p.name}
-            className="w-full aspect-[3/4] object-cover bg-sand/30"
-          />
-        )}
-      </div>
+      {/* La galerie interactive */}
+      <ProductGallery images={p.images ?? []} alt={p.name} />
+      
       <div className="md:sticky md:top-28 self-start">
         <p className="text-[11px] uppercase tracking-widest2 text-choco/50 mb-3">{p.category}</p>
         <h1 className="font-display text-4xl md:text-5xl text-choco mb-4">{p.name}</h1>
