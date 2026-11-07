@@ -9,7 +9,7 @@ export default function Hero() {
         initial={{ scale: 1.15 }} animate={{ scale: 1 }}
         transition={{ duration: 2.2, ease: [0.2, 0.7, 0.2, 1] }}
         className="absolute inset-0 bg-cover bg-center bg-sand"
-        style={{ backgroundImage: "url('/images/hero.jpg')" }}
+        style={{ backgroundImage: "url('https://swqckjgzswsuntqdfdxh.supabase.co/storage/v1/object/public/products/XKFR2390.JPG')" }}
       />
       <div className="absolute inset-0 bg-gradient-to-b from-ink/30 via-transparent to-ink/50" />
       <div className="relative z-10 h-full flex flex-col justify-end max-w-7xl mx-auto px-6 pb-24">
