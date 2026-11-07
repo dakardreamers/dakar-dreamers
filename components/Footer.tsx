@@ -26,8 +26,8 @@ export default function Footer() {
         <div>
           <p className="text-[11px] uppercase tracking-widest2 text-ivory mb-4">Suivre</p>
           <ul className="space-y-2 text-sm">
-            <li><a href="https://instagram.com" className="link-underline">Instagram</a></li>
-            <li><a href="https://tiktok.com" className="link-underline">TikTok</a></li>
+            <li><a href="https://instagram.com/dakardreamers" className="link-underline">Instagram</a></li>
+            <li><a href="https://tiktok.com/@dakardreamers" className="link-underline">TikTok</a></li>
           </ul>
         </div>
       </div>
