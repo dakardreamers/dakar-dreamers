@@ -8,10 +8,10 @@ export default function AddToCart({ product }: { product: any }) {
   const add = useCart((s) => s.add);
   const [added, setAdded] = useState(false);
 
-  const isOutOfStock = product.stock !== null && product.stock <= 0;
+  // On considère qu'un produit est en précommande si le stock est 0 ou moins
+  const isPreorder = product.stock !== null && product.stock <= 0;
 
   function handle() {
-    if (isOutOfStock) return;
     add({
       id: product.id,
       slug: product.slug,
@@ -36,11 +36,10 @@ export default function AddToCart({ product }: { product: any }) {
               <button
                 key={s}
                 onClick={() => setSize(s)}
-                disabled={isOutOfStock}
                 className={`w-12 h-12 text-sm border transition ${
                   size === s
                     ? "bg-choco text-ivory border-choco"
-                    : "border-choco/30 text-choco hover:border-choco disabled:opacity-50"
+                    : "border-choco/30 text-choco hover:border-choco"
                 }`}
               >
                 {s}
@@ -49,13 +48,38 @@ export default function AddToCart({ product }: { product: any }) {
           </div>
         </div>
       )}
-      
-      <button 
-        onClick={handle} 
-        disabled={isOutOfStock}
-        className={`w-full justify-center btn-primary ${isOutOfStock ? "opacity-50 cursor-not-allowed" : ""}`}
-      >
-        {isOutOfStock ? "Épuisé" : added ? "Ajouté ✦" : "Ajouter au panier"}
+
+      {product.colors?.length > 0 && (
+        <div>
+          <p className="text-[11px] uppercase tracking-widest2 mb-3">Couleur</p>
+          <div className="flex gap-2 flex-wrap">
+            {product.colors.map((c: string) => (
+              <button
+                key={c}
+                onClick={() => setColor(c)}
+                className={`px-4 h-10 text-xs border transition ${
+                  color === c
+                    ? "bg-choco text-ivory border-choco"
+                    : "border-choco/30 text-choco hover:border-choco"
+                }`}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Message d'avertissement pour la précommande */}
+      {isPreorder && (
+        <div className="bg-olive/10 border border-olive/30 p-4 text-sm text-olive">
+          <strong>Précommande :</strong> Cette pièce est en cours de production. 
+          Ta commande sera expédiée sous 2 à 3 semaines.
+        </div>
+      )}
+
+      <button onClick={handle} className="btn-primary w-full justify-center">
+        {added ? "Ajouté ✦" : isPreorder ? "Précommander" : "Ajouter au panier"}
       </button>
     </div>
   );

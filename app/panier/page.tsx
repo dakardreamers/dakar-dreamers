@@ -7,6 +7,9 @@ export default function Panier() {
   const { items, remove, setQty, total } = useCart();
   const t = total();
 
+  // On vérifie s'il y a au moins un article en précommande pour afficher le message
+  const hasPreorder = items.some((i) => i.isPreorder);
+
   return (
     <main className="pt-32 pb-32 max-w-5xl mx-auto px-6">
       <h1 className="section-title mb-12">Mon panier</h1>
@@ -65,6 +68,13 @@ export default function Panier() {
             <span className="text-xs uppercase tracking-widest2">Total</span>
             <span className="text-xl text-choco">{fcfa(t)}</span>
           </div>
+          
+          {hasPreorder && (
+            <p className="text-xs text-choco/50 text-center mb-4">
+              * Les articles marqués comme "Précommande" seront expédiés sous 2 à 3 semaines.
+            </p>
+          )}
+
           <Link href="/checkout" className="btn-primary w-full justify-center">
             Passer commande
           </Link>
