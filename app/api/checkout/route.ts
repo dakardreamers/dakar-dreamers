@@ -39,7 +39,14 @@ export async function POST(req: NextRequest) {
 
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
-
+    // Mettre à jour le stock pour chaque article acheté
+  for (const item of items) {
+    const { data: prod } = await supabaseAdmin().from("products").select("stock").eq("id", item.id).single();
+    if (prod && prod.stock !== null) {
+      await supabaseAdmin().from("products").update({ stock: Math.max(0, prod.stock - item.qty) }).eq("id", item.id);
+    }
+  }
+  
   const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const successUrl = `${base}/checkout/confirmation?ref=${reference}`;
   const errorUrl = `${base}/checkout?error=1`;

@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { fcfa } from "@/lib/format";
 
 export default function ProductCard({ p }: { p: any }) {
+  const isOutOfStock = p.stock !== null && p.stock <= 0;
+
   return (
     <motion.div whileHover="hover" initial="rest" animate="rest" className="group">
       <Link href={`/boutique/${p.slug}`}>
@@ -13,8 +15,15 @@ export default function ProductCard({ p }: { p: any }) {
             alt={p.name}
             variants={{ rest: { scale: 1 }, hover: { scale: 1.06 } }}
             transition={{ duration: 0.9, ease: [0.2, 0.7, 0.2, 1] }}
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover ${isOutOfStock ? "opacity-50 grayscale" : ""}`}
           />
+          {isOutOfStock && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="bg-choco text-ivory text-xs uppercase tracking-widest2 px-4 py-2">
+                Épuisé
+              </span>
+            </div>
+          )}
         </div>
         <div className="mt-4 flex justify-between">
           <div>
