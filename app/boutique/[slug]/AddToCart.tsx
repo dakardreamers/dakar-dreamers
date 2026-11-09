@@ -8,7 +8,6 @@ export default function AddToCart({ product }: { product: any }) {
   const add = useCart((s) => s.add);
   const [added, setAdded] = useState(false);
 
-  // On considère qu'un produit est en précommande si le stock est 0 ou moins
   const isPreorder = product.stock !== null && product.stock <= 0;
 
   function handle() {
@@ -21,6 +20,7 @@ export default function AddToCart({ product }: { product: any }) {
       size,
       color,
       qty: 1,
+      isPreorder: isPreorder, // <-- On ajoute cette ligne
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
@@ -70,7 +70,6 @@ export default function AddToCart({ product }: { product: any }) {
         </div>
       )}
 
-      {/* Message d'avertissement pour la précommande */}
       {isPreorder && (
         <div className="bg-olive/10 border border-olive/30 p-4 text-sm text-olive">
           <strong>Précommande :</strong> Cette pièce est en cours de production. 

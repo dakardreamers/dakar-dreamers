@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 export type CartItem = {
   id: string; slug: string; name: string; price_fcfa: number;
   image: string; size: string; color: string; qty: number;
+  isPreorder?: boolean; // <-- On ajoute cette ligne
 };
 
 type CartState = {
