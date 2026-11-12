@@ -4,7 +4,9 @@ import { useCart } from "@/lib/cart-store";
 
 export default function AddToCart({ product }: { product: any }) {
   const [size, setSize] = useState(product.sizes?.[0] ?? "M");
-  const [color, setColor] = useState(product.colors?.[0] ?? "");
+  // On prend la première couleur par défaut
+  const color = product.colorOptions?.[0] ?? "Standard"; 
+  
   const add = useCart((s) => s.add);
   const [added, setAdded] = useState(false);
 
@@ -16,11 +18,11 @@ export default function AddToCart({ product }: { product: any }) {
       slug: product.slug,
       name: product.name,
       price_fcfa: product.price_fcfa,
-      image: product.images?.[0] ?? "",
+      image: product.images?.[0] ?? "", // L'image d'aperçu dans le panier
       size,
       color,
       qty: 1,
-      isPreorder: isPreorder, // <-- On ajoute cette ligne
+      isPreorder: isPreorder,
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
@@ -43,27 +45,6 @@ export default function AddToCart({ product }: { product: any }) {
                 }`}
               >
                 {s}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {product.colors?.length > 0 && (
-        <div>
-          <p className="text-[11px] uppercase tracking-widest2 mb-3">Couleur</p>
-          <div className="flex gap-2 flex-wrap">
-            {product.colors.map((c: string) => (
-              <button
-                key={c}
-                onClick={() => setColor(c)}
-                className={`px-4 h-10 text-xs border transition ${
-                  color === c
-                    ? "bg-choco text-ivory border-choco"
-                    : "border-choco/30 text-choco hover:border-choco"
-                }`}
-              >
-                {c}
               </button>
             ))}
           </div>

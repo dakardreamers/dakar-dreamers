@@ -21,17 +21,22 @@ export default async function ProductPage({
 
   if (!p || error) notFound();
 
+  // Si le produit n'a pas encore de variants (ancien produit), on crée une fausse variante basique
+  const safeVariants = p.variants && p.variants.length > 0 ? p.variants : [{ color: "Standard", images: p.images || [] }];
+
   return (
     <main className="pt-28 max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 pb-32">
-      {/* La galerie interactive */}
-      <ProductGallery images={p.images ?? []} alt={p.name} />
+      {/* La galerie interactive avec les couleurs */}
+      <ProductGallery variants={safeVariants} alt={p.name} />
       
       <div className="md:sticky md:top-28 self-start">
         <p className="text-[11px] uppercase tracking-widest2 text-choco/50 mb-3">{p.category}</p>
         <h1 className="font-display text-4xl md:text-5xl text-choco mb-4">{p.name}</h1>
         <p className="text-xl text-choco mb-8">{fcfa(p.price_fcfa)}</p>
         <p className="text-sm text-choco/70 leading-relaxed mb-10">{p.description}</p>
-        <AddToCart product={p} />
+        
+        {/* On passe les variants au panier pour qu'il connaisse la couleur */}
+        <AddToCart product={{ ...p, colorOptions: safeVariants.map((v: any) => v.color) }} />
       </div>
     </main>
   );

@@ -11,44 +11,44 @@ export default function AdminProducts() {
     category: "tshirts",
     description: "",
     stock: 0,
-    images: "",
     sizes: "S,M,L,XL",
-    colors: "",
+    // On crée un tableau de variantes. Par défaut, une variante vide.
+    variants: [{ color: "", images: "" }], 
   });
 
   async function load() {
-    const { data } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
     setProducts(data ?? []);
   }
 
-  useEffect(() => {
-    load();
-  }, []);
+  useEffect(() => { load(); }, []);
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
+    
+    // On transforme le texte "url1, url2" en tableau d'URLs
+    const formattedVariants = form.variants.map(v => ({
+      color: v.color,
+      images: v.images.split(",").map(s => s.trim()).filter(Boolean)
+    }));
+
     const payload = {
-      ...form,
-      images: form.images ? form.images.split(",").map((s) => s.trim()).filter(Boolean) : [],
-      sizes: form.sizes.split(",").map((s) => s.trim()).filter(Boolean),
-      colors: form.colors ? form.colors.split(",").map((s) => s.trim()).filter(Boolean) : [],
+      name: form.name,
+      slug: form.slug,
+      price_fcfa: form.price_fcfa,
+      category: form.category,
+      description: form.description,
+      stock: form.stock,
+      sizes: form.sizes.split(",").map(s => s.trim()).filter(Boolean),
+      variants: formattedVariants,
+      images: formattedVariants[0]?.images || [], // L'image principale pour la boutique
     };
+
     const { error } = await supabase.from("products").insert(payload);
     if (error) return alert(error.message);
-    setForm({
-      name: "",
-      slug: "",
-      price_fcfa: 0,
-      category: "tshirts",
-      description: "",
-      stock: 0,
-      images: "",
-      sizes: "S,M,L,XL",
-      colors: "",
-    });
+    
+    // Reset form
+    setForm({ name: "", slug: "", price_fcfa: 0, category: "tshirts", description: "", stock: 0, sizes: "S,M,L,XL", variants: [{ color: "", images: "" }] });
     load();
   }
 
@@ -56,12 +56,24 @@ export default function AdminProducts() {
     await supabase.from("products").update({ is_active: active }).eq("id", id);
     load();
   }
-
   async function del(id: string) {
     if (!confirm("Supprimer ce produit ?")) return;
     await supabase.from("products").delete().eq("id", id);
     load();
   }
+
+  // Gérer l'ajout/suppression de variantes
+  const addVariant = () => setForm({ ...form, variants: [...form.variants, { color: "", images: "" }] });
+  const removeVariant = (index: number) => {
+    const newVariants = [...form.variants];
+    newVariants.splice(index, 1);
+    setForm({ ...form, variants: newVariants });
+  };
+  const updateVariant = (index: number, key: string, value: string) => {
+    const newVariants = [...form.variants];
+    newVariants[index] = { ...newVariants[index], [key]: value };
+    setForm({ ...form, variants: newVariants });
+  };
 
   return (
     <div className="space-y-10">
@@ -76,28 +88,46 @@ export default function AdminProducts() {
           <option value="bonnets">Bonnets</option>
           <option value="accessoires">Accessoires</option>
           <option value="nouveautes">Nouveautés</option>
+          <option value="avenir">À venir</option>
         </select>
-        <input placeholder="URLs images (séparées par virgule)" value={form.images} onChange={(e) => setForm({ ...form, images: e.target.value })} className="border p-3 col-span-2" />
         <input placeholder="Tailles (S,M,L,XL)" value={form.sizes} onChange={(e) => setForm({ ...form, sizes: e.target.value })} className="border p-3" />
-        <input placeholder="Couleurs (Noir,Crème)" value={form.colors} onChange={(e) => setForm({ ...form, colors: e.target.value })} className="border p-3" />
+        <input required type="number" placeholder="Stock total" value={form.stock} onChange={(e) => setForm({ ...form, stock: +e.target.value })} className="border p-3" />
         <textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="border p-3 col-span-2" rows={3} />
-        <button className="btn-primary col-span-2 justify-center">Créer le produit</button>
+
+        {/* SECTION VARIANTES (Couleurs et Images) */}
+        <div className="col-span-2 mt-4 p-4 border border-choco/20 bg-cream/50">
+          <p className="font-display text-lg mb-4">Couleurs et Images</p>
+          {form.variants.map((v, i) => (
+            <div key={i} className="flex gap-4 mb-4 items-start">
+              <div className="w-1/3">
+                <label className="text-xs uppercase tracking-widest text-choco/60">Couleur</label>
+                <input placeholder="Ex: Noir" value={v.color} onChange={(e) => updateVariant(i, "color", e.target.value)} className="w-full border p-2 mt-1" />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs uppercase tracking-widest text-choco/60">URLs Images (séparées par une virgule)</label>
+                <input placeholder="url_face.jpg, url_dos.jpg, url_detail.jpg" value={v.images} onChange={(e) => updateVariant(i, "images", e.target.value)} className="w-full border p-2 mt-1" />
+              </div>
+              {form.variants.length > 1 && (
+                <button type="button" onClick={() => removeVariant(i)} className="mt-6 text-red-600 text-sm">Supprimer</button>
+              )}
+            </div>
+          ))}
+          <button type="button" onClick={addVariant} className="text-xs uppercase tracking-widest2 text-olive underline">+ Ajouter une couleur</button>
+        </div>
+
+        <button className="btn-primary col-span-2 justify-center mt-4">Créer le produit</button>
       </form>
+
       <div className="bg-ivory border border-choco/10">
         {products.map((p) => (
           <div key={p.id} className="flex items-center justify-between gap-4 p-4 border-b border-choco/10">
             <span className="text-sm">{p.name} — {p.price_fcfa} FCFA · {p.category}</span>
             <div className="flex gap-3 text-xs uppercase tracking-widest2">
-              <button onClick={() => toggle(p.id, !p.is_active)}>
-                {p.is_active ? "Désactiver" : "Activer"}
-              </button>
+              <button onClick={() => toggle(p.id, !p.is_active)}>{p.is_active ? "Désactiver" : "Activer"}</button>
               <button onClick={() => del(p.id)} className="text-red-700">Suppr.</button>
             </div>
           </div>
         ))}
-        {products.length === 0 && (
-          <p className="p-6 text-sm text-choco/50">Aucun produit. Crée le premier ci-dessus.</p>
-        )}
       </div>
     </div>
   );
