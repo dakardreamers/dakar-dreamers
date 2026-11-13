@@ -27,15 +27,21 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // ⚠️ IMPORTANT : On utilise getUser() pour vérifier le token auprès du serveur Supabase
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Si on est sur /admin et qu'il n'y a pas d'utilisateur connecté
+  // 1. Si on est sur /admin sans être connecté -> redirection vers /login
   if (request.nextUrl.pathname.startsWith("/admin") && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  // 2. Si on est sur /login et qu'on est DÉJÀ connecté -> redirection vers /admin
+  if (request.nextUrl.pathname === "/login" && user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/admin";
     return NextResponse.redirect(url);
   }
 
@@ -43,5 +49,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/login"],
 };
