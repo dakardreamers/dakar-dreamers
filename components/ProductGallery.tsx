@@ -1,22 +1,34 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function ProductGallery({ variants, alt }: { variants: any[]; alt: string }) {
-  const [activeColorIndex, setActiveColorIndex] = useState(0);
-  const [mainImage, setMainImage] = useState(variants[0]?.images?.[0] || "/images/placeholder.jpg");
+export default function ProductGallery({ 
+  variants, 
+  alt, 
+  activeColor, 
+  onColorChange 
+}: { 
+  variants: any[]; 
+  alt: string; 
+  activeColor: string; 
+  onColorChange: (c: string) => void 
+}) {
+  const [mainImage, setMainImage] = useState("");
 
-  const activeVariant = variants[activeColorIndex] || { images: [] };
+  // Trouver la variante correspondant à la couleur active
+  const activeVariant = variants.find(v => v.color === activeColor) || variants[0];
 
-  function handleColorChange(index: number) {
-    setActiveColorIndex(index);
-    setMainImage(variants[index]?.images?.[0] || "/images/placeholder.jpg");
-  }
+  // Mettre à jour l'image principale quand la couleur change
+  useEffect(() => {
+    if (activeVariant?.images?.[0]) {
+      setMainImage(activeVariant.images[0]);
+    }
+  }, [activeColor, activeVariant]);
 
   return (
     <div className="flex flex-col gap-4">
       {/* Miniatures (vignettes) */}
       <div className="flex gap-4 overflow-x-auto">
-        {activeVariant.images.map((src: string, i: number) => (
+        {activeVariant?.images?.map((src: string, i: number) => (
           <button
             key={i}
             onClick={() => setMainImage(src)}
@@ -31,7 +43,7 @@ export default function ProductGallery({ variants, alt }: { variants: any[]; alt
 
       {/* Grande image */}
       <div className="flex-1">
-        <img src={mainImage} alt={alt} className="w-full aspect-[3/4] object-cover bg-sand/30" />
+        <img src={mainImage || activeVariant?.images?.[0]} alt={alt} className="w-full aspect-[3/4] object-cover bg-sand/30" />
       </div>
 
       {/* Boutons de couleurs */}
@@ -41,9 +53,9 @@ export default function ProductGallery({ variants, alt }: { variants: any[]; alt
           {variants.map((v, i) => (
             <button
               key={i}
-              onClick={() => handleColorChange(i)}
+              onClick={() => onColorChange(v.color)}
               className={`px-4 h-10 text-xs border transition ${
-                activeColorIndex === i
+                activeColor === v.color
                   ? "bg-choco text-ivory border-choco"
                   : "border-choco/30 text-choco hover:border-choco"
               }`}

@@ -4,13 +4,12 @@ import { useCart } from "@/lib/cart-store";
 
 export default function AddToCart({ product }: { product: any }) {
   const [size, setSize] = useState(product.sizes?.[0] ?? "M");
-  const color = product.colorOptions?.[0] ?? "Standard"; 
-  
   const add = useCart((s) => s.add);
   const [added, setAdded] = useState(false);
 
-  // On vérifie si le stock est à 0 ou moins
   const isOutOfStock = product.stock !== null && product.stock <= 0;
+  // On utilise la couleur sélectionnée depuis la page produit
+  const color = product.selectedColor || "Standard"; 
 
   function handle() {
     if (isOutOfStock) return;
@@ -22,7 +21,7 @@ export default function AddToCart({ product }: { product: any }) {
       price_fcfa: product.price_fcfa,
       image: product.images?.[0] ?? "",
       size,
-      color,
+      color: color, // <-- On enregistre la bonne couleur
       qty: 1,
     });
     setAdded(true);
