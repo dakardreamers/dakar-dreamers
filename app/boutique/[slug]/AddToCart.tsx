@@ -9,6 +9,7 @@ export default function AddToCart({ product }: { product: any }) {
   const add = useCart((s) => s.add);
   const [added, setAdded] = useState(false);
 
+  // On vérifie si le stock est à 0 ou moins
   const isOutOfStock = product.stock !== null && product.stock <= 0;
 
   function handle() {
@@ -42,7 +43,7 @@ export default function AddToCart({ product }: { product: any }) {
                 className={`w-12 h-12 text-sm border transition ${
                   size === s
                     ? "bg-choco text-ivory border-choco"
-                    : "border-choco/30 text-choco hover:border-choco disabled:opacity-50"
+                    : "border-choco/30 text-choco hover:border-choco disabled:opacity-50 disabled:cursor-not-allowed"
                 }`}
               >
                 {s}
