@@ -28,14 +28,14 @@ export default function StatusSelector({ orderId, currentStatus }: { orderId: st
 
     if (error) {
       alert("Erreur lors de la mise à jour");
-      setStatus(currentStatus); // On remet l'ancien statut en cas d'erreur
+      setStatus(currentStatus);
     } else {
-      router.refresh(); // On rafraîchit la page pour voir le changement
+      // On force Next.js à aller chercher les nouvelles données sur le serveur
+      router.refresh();
     }
     setLoading(false);
   }
 
-  // Couleur du statut
   const getColor = (s: string) => {
     switch (s) {
       case "pending": return "text-orange-600 bg-orange-100 border-orange-200";

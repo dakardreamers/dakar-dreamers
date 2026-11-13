@@ -3,9 +3,12 @@ import { fcfa } from "@/lib/format";
 import Link from "next/link";
 import StatusSelector from "./StatusSelector";
 
+// ⚠️ ON DÉSACTIVE LE CACHE POUR CETTE PAGE
 export const dynamic = "force-dynamic";
+export const revalidate = 0; 
 
 export default async function AdminOrders() {
+  // On utilise supabaseAdmin() pour être sûr d'avoir les données fraîches sans cache
   const { data: orders } = await supabase
     .from("orders")
     .select("*")
@@ -18,7 +21,6 @@ export default async function AdminOrders() {
         {(orders ?? []).map((o) => (
           <div key={o.id} className="p-6 border-b border-choco/10 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-cream/50 transition">
             
-            {/* Infos principales (cliquables pour voir le détail) */}
             <Link href={`/admin/commandes/${o.id}`} className="flex-1">
               <div className="flex justify-between md:justify-start md:gap-8 items-center">
                 <div>
@@ -33,7 +35,6 @@ export default async function AdminOrders() {
               </div>
             </Link>
 
-            {/* Menu déroulant pour changer le statut */}
             <div className="w-full md:w-48">
               <StatusSelector orderId={o.id} currentStatus={o.status} />
             </div>
