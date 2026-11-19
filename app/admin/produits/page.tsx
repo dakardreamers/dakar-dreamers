@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-browser"; // <-- NOUVEL IMPORT
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<any[]>([]);
@@ -12,9 +12,11 @@ export default function AdminProducts() {
     description: "",
     stock: 0,
     sizes: "S,M,L,XL",
-    // On crée un tableau de variantes. Par défaut, une variante vide.
-    variants: [{ color: "", images: "" }], 
+    variants: [{ color: "", images: "" }],
   });
+
+  // On crée le client une seule fois
+  const supabase = createClient();
 
   async function load() {
     const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
@@ -26,7 +28,6 @@ export default function AdminProducts() {
   async function create(e: React.FormEvent) {
     e.preventDefault();
     
-    // On transforme le texte "url1, url2" en tableau d'URLs
     const formattedVariants = form.variants.map(v => ({
       color: v.color,
       images: v.images.split(",").map(s => s.trim()).filter(Boolean)
@@ -41,13 +42,12 @@ export default function AdminProducts() {
       stock: form.stock,
       sizes: form.sizes.split(",").map(s => s.trim()).filter(Boolean),
       variants: formattedVariants,
-      images: formattedVariants[0]?.images || [], // L'image principale pour la boutique
+      images: formattedVariants[0]?.images || [],
     };
 
     const { error } = await supabase.from("products").insert(payload);
     if (error) return alert(error.message);
     
-    // Reset form
     setForm({ name: "", slug: "", price_fcfa: 0, category: "tshirts", description: "", stock: 0, sizes: "S,M,L,XL", variants: [{ color: "", images: "" }] });
     load();
   }
@@ -56,13 +56,13 @@ export default function AdminProducts() {
     await supabase.from("products").update({ is_active: active }).eq("id", id);
     load();
   }
+  
   async function del(id: string) {
     if (!confirm("Supprimer ce produit ?")) return;
     await supabase.from("products").delete().eq("id", id);
     load();
   }
 
-  // Gérer l'ajout/suppression de variantes
   const addVariant = () => setForm({ ...form, variants: [...form.variants, { color: "", images: "" }] });
   const removeVariant = (index: number) => {
     const newVariants = [...form.variants];
@@ -79,6 +79,7 @@ export default function AdminProducts() {
     <div className="space-y-10">
       <h1 className="section-title">Produits</h1>
       <form onSubmit={create} className="grid grid-cols-2 gap-4 bg-ivory p-6 border border-choco/10">
+        {/* ... (le reste du formulaire reste identique, tu n'as pas besoin de le changer) ... */}
         <input required placeholder="Nom" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="border p-3" />
         <input required placeholder="Slug (ex: hoodie-noir)" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} className="border p-3" />
         <input required type="number" placeholder="Prix FCFA" value={form.price_fcfa} onChange={(e) => setForm({ ...form, price_fcfa: +e.target.value })} className="border p-3" />
@@ -94,7 +95,6 @@ export default function AdminProducts() {
         <input required type="number" placeholder="Stock total" value={form.stock} onChange={(e) => setForm({ ...form, stock: +e.target.value })} className="border p-3" />
         <textarea placeholder="Description" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="border p-3 col-span-2" rows={3} />
 
-        {/* SECTION VARIANTES (Couleurs et Images) */}
         <div className="col-span-2 mt-4 p-4 border border-choco/20 bg-cream/50">
           <p className="font-display text-lg mb-4">Couleurs et Images</p>
           {form.variants.map((v, i) => (
