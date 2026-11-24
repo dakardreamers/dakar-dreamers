@@ -1,12 +1,13 @@
 "use client";
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-browser";
 import { useRouter } from "next/navigation";
 
 export default function StatusSelector({ orderId, currentStatus }: { orderId: string, currentStatus: string }) {
   const [status, setStatus] = useState(currentStatus);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const supabase = createClient();
 
   const statuses = [
     { value: "pending", label: "En attente" },
@@ -27,10 +28,9 @@ export default function StatusSelector({ orderId, currentStatus }: { orderId: st
       .eq("id", orderId);
 
     if (error) {
-      alert("Erreur lors de la mise à jour");
+      alert("Erreur : " + error.message);
       setStatus(currentStatus);
     } else {
-      // On force Next.js à aller chercher les nouvelles données sur le serveur
       router.refresh();
     }
     setLoading(false);

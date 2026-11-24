@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { fcfa } from "@/lib/format";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function CommandeDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const { data: order, error } = await supabase
+  const { data: order, error } = await supabaseAdmin() // <-- On utilise le client admin ici aussi
     .from("orders")
     .select("*")
     .eq("id", id)
@@ -25,7 +25,9 @@ export default async function CommandeDetail({ params }: { params: Promise<{ id:
       <div className="flex justify-between items-start">
         <div>
           <h1 className="section-title">Commande {order.reference}</h1>
-          <p className="text-choco/60 text-sm mt-2">Passée le {new Date(order.created_at).toLocaleDateString('fr-FR')} à {new Date(order.created_at).toLocaleTimeString('fr-FR')}</p>
+          <p className="text-choco/60 text-sm mt-2">
+            Passée le {new Date(order.created_at).toLocaleDateString('fr-FR')} à {new Date(order.created_at).toLocaleTimeString('fr-FR')}
+          </p>
         </div>
         <div className="text-right">
           <p className="text-xs uppercase tracking-widest2 text-choco/50 mb-1">Total</p>
@@ -34,7 +36,6 @@ export default async function CommandeDetail({ params }: { params: Promise<{ id:
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Infos Client */}
         <div className="bg-ivory p-6 border border-choco/10">
           <h2 className="font-display text-xl mb-4">Client</h2>
           <div className="space-y-2 text-sm text-choco/80">
@@ -45,7 +46,6 @@ export default async function CommandeDetail({ params }: { params: Promise<{ id:
           </div>
         </div>
 
-        {/* Infos Paiement & Statut */}
         <div className="bg-ivory p-6 border border-choco/10">
           <h2 className="font-display text-xl mb-4">Paiement & Statut</h2>
           <div className="space-y-2 text-sm text-choco/80">
@@ -56,12 +56,11 @@ export default async function CommandeDetail({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      {/* Articles commandés */}
       <div className="bg-ivory border border-choco/10">
         <h2 className="font-display text-xl p-6 border-b border-choco/10">Articles</h2>
         <div className="p-6 space-y-4">
           {order.items.map((item: any, index: number) => (
-            <div key={index} className="flex gap-4 items-center">
+            <div key={index} className="flex gap-4 items-center border-b border-choco/5 pb-4 last:border-0">
               <img src={item.image || "/images/placeholder.jpg"} alt={item.name} className="w-16 h-20 object-cover bg-sand/30" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-choco">{item.name}</p>
